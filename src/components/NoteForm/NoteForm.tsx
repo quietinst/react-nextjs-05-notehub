@@ -1,10 +1,11 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from 'formik';
 import * as Yup from 'yup';
+import { createNote } from '../../services/noteService';
 import type { NoteFormValues } from '../../types/note';
 import styles from './NoteForm.module.css';
 
 interface NoteFormProps {
-  onSubmit: (values: NoteFormValues) => void;
   onClose: () => void;
 }
 
@@ -25,13 +26,26 @@ const NoteFormSchema = Yup.object().shape({
     .required('Tag is required'),
 });
 
-const NoteForm = ({ onSubmit, onClose }: NoteFormProps) => {
-  const handleSubmit = (
+const NoteForm = ({ onClose }: NoteFormProps) => {
+  const queryClient = useQueryClient();
+  const createMutation = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+    },
+  });
+
+  const handleSubmit = async (
     values: NoteFormValues,
     actions: FormikHelpers<NoteFormValues>
   ) => {
-    onSubmit(values);
-    actions.resetForm();
+    try {
+      await createMutation.mutateAsync(values);
+      actions.resetForm();
+      onClose();
+    } catch (error) {
+      console.error('Failed to create note:', error);
+    }
   };
 
   return (
@@ -41,7 +55,7 @@ const NoteForm = ({ onSubmit, onClose }: NoteFormProps) => {
       onSubmit={handleSubmit}
       validateOnMount
     >
-      {({ isValid, dirty }) => (
+      {({ isValid, dirty, isSubmitting }) => (
         <Form className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="title">Title</label>
@@ -88,7 +102,7 @@ const NoteForm = ({ onSubmit, onClose }: NoteFormProps) => {
             <button
               type="submit"
               className={styles.submitButton}
-              disabled={!isValid || !dirty}
+              disabled={!isValid || !dirty || isSubmitting}
             >
               Create note
             </button>
