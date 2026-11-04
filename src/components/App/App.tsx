@@ -2,7 +2,9 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { fetchNotes } from '../../services/noteService';
+import type { NoteFormValues } from '../../types/note';
 import Modal from '../Modal/Modal';
+import NoteForm from '../NoteForm/NoteForm';
 import NoteList from '../NoteList/NoteList';
 import Pagination from '../Pagination/Pagination';
 import SearchBox from '../SearchBox/SearchBox';
@@ -27,8 +29,11 @@ const App = () => {
     300
   );
 
-  const openModal = () => setIsModalOpen(true);
+  const handleCreateNote = (note: NoteFormValues) => {
+    console.log(note);
+  };
 
+  const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   const totalPages = data?.totalPages ?? 0;
@@ -52,7 +57,7 @@ const App = () => {
       {data && data.notes.length > 0 && <NoteList notes={data.notes} />}
       {isModalOpen && (
         <Modal onClose={closeModal}>
-          <h2>Modal</h2>
+          <NoteForm onSubmit={handleCreateNote} onClose={closeModal} />
         </Modal>
       )}
     </div>
