@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from 'formik';
+import { useState } from 'react';
 import * as Yup from 'yup';
 import { createNote } from '../../services/noteService';
 import type { NoteFormValues } from '../../types/note';
+import ApiError from '../ApiError/ApiError';
 import styles from './NoteForm.module.css';
 
 interface NoteFormProps {
@@ -27,6 +29,8 @@ const NoteFormSchema = Yup.object().shape({
 });
 
 const NoteForm = ({ onClose }: NoteFormProps) => {
+  const [createError, setCreateError] = useState<string | null>(null);
+
   const queryClient = useQueryClient();
   const createMutation = useMutation({
     mutationFn: createNote,
@@ -39,12 +43,14 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
     values: NoteFormValues,
     actions: FormikHelpers<NoteFormValues>
   ) => {
+    setCreateError(null);
+
     try {
       await createMutation.mutateAsync(values);
       actions.resetForm();
       onClose();
-    } catch (error) {
-      console.error('Failed to create note:', error);
+    } catch {
+      setCreateError('Failed to create note. Please try again.');
     }
   };
 
@@ -90,7 +96,7 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
             </Field>
             <ErrorMessage name="tag" className={styles.error} />
           </div>
-
+          {createError && <ApiError message={createError} />}
           <div className={styles.actions}>
             <button
               type="button"
@@ -104,7 +110,7 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
               className={styles.submitButton}
               disabled={!isValid || !dirty || isSubmitting}
             >
-              Create note
+              {isSubmitting ? 'Creating...' : 'Create note'}
             </button>
           </div>
         </Form>

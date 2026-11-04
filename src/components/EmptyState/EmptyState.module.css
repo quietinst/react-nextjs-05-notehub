@@ -1,0 +1,21 @@
+.emptyState {
+  padding: 40px 20px;
+  margin: 16px 0;
+  text-align: center;
+  background-color: #f8f9fa;
+  border: 1px dashed #dee2e6;
+  border-radius: 8px;
+}
+
+.emptyState h2 {
+  margin: 0 0 8px;
+  color: #212529;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.emptyState p {
+  margin: 0;
+  color: #495057;
+  font-size: 14px;
+}

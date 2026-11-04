@@ -11,7 +11,7 @@ export const fetchNotes = async (
   page: number
 ): Promise<FetchNotesResponse> => {
   const res = await axios.get<FetchNotesResponse>(
-    'https://notehub-public.goit.study/api/notes',
+    'https://notehub-public.goit.study/api/notes!',
     {
       params: {
         // search=example&tag=Todo&page=1&perPage=10&sortBy=created

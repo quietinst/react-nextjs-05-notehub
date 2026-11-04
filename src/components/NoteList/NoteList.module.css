@@ -41,6 +41,7 @@
 
 .button {
   align-self: flex-end;
+  min-width: 90px;
   padding: 6px 12px;
   font-size: 14px;
   color: #fff;

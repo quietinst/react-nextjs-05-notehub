@@ -2,6 +2,9 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { fetchNotes } from '../../services/noteService';
+import ApiError from '../ApiError/ApiError';
+import EmptyState from '../EmptyState/EmptyState';
+import Loader from '../Loader/Loader';
 import Modal from '../Modal/Modal';
 import NoteForm from '../NoteForm/NoteForm';
 import NoteList from '../NoteList/NoteList';
@@ -14,7 +17,7 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: ['notes', searchQuery, currentPage],
     queryFn: () => fetchNotes(searchQuery, currentPage),
     placeholderData: keepPreviousData,
@@ -48,7 +51,9 @@ const App = () => {
           Create note +
         </button>
       </header>
-      {isLoading && 'Loading...'}
+      {isLoading && <Loader />}
+      {isError && <ApiError message={error.message} />}
+      {data && data.notes.length === 0 && <EmptyState />}
       {data && data.notes.length > 0 && <NoteList notes={data.notes} />}
       {isModalOpen && (
         <Modal onClose={closeModal}>
