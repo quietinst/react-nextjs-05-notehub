@@ -1,5 +1,4 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
 import { deleteNote } from '../../services/noteService';
 import type { Note } from '../../types/note';
 import ApiError from '../ApiError/ApiError';
@@ -10,9 +9,6 @@ interface NoteListProps {
 }
 
 const NoteList = ({ notes }: NoteListProps) => {
-  const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: deleteNote,
@@ -21,22 +17,11 @@ const NoteList = ({ notes }: NoteListProps) => {
     },
   });
 
-  const handleDelete = async (id: string) => {
-    setDeletingNoteId(id);
-    setDeleteError(null);
-
-    try {
-      await deleteMutation.mutateAsync(id);
-    } catch {
-      setDeleteError('Failed to delete note. Please try again.');
-    } finally {
-      setDeletingNoteId(null);
-    }
-  };
-
   return (
     <>
-      {deleteError && <ApiError message={deleteError} />}
+      {deleteMutation.isError && (
+        <ApiError message="Failed to delete note. Please try again." />
+      )}
       <ul className={styles.list}>
         {notes.map(note => (
           <li key={note.id} className={styles.listItem}>
@@ -46,10 +31,13 @@ const NoteList = ({ notes }: NoteListProps) => {
               <span className={styles.tag}>{note.tag}</span>
               <button
                 className={styles.button}
-                onClick={() => handleDelete(note.id)}
+                onClick={() => deleteMutation.mutate(note.id)}
                 disabled={deleteMutation.isPending}
               >
-                {deletingNoteId === note.id ? 'Deleting...' : 'Delete'}
+                {deleteMutation.isPending &&
+                deleteMutation.variables === note.id
+                  ? 'Deleting...'
+                  : 'Delete'}
               </button>
             </div>
           </li>

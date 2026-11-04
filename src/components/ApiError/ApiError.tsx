@@ -1,12 +1,12 @@
 import styles from './ApiError.module.css';
 
-interface ErrorMessageProps {
+interface ApiErrorProps {
   message?: string;
 }
 
 const ApiError = ({
   message = 'Something went wrong. Please try again.',
-}: ErrorMessageProps) => {
+}: ApiErrorProps) => {
   return <p className={styles.error}>{message}</p>;
 };
 

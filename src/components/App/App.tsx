@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 import { fetchNotes } from '../../services/noteService';
 import ApiError from '../ApiError/ApiError';
@@ -17,7 +17,12 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { data, isLoading, isError, error } = useQuery({
+  const {
+    data: notesData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ['notes', searchQuery, currentPage],
     queryFn: () => fetchNotes(searchQuery, currentPage),
     placeholderData: keepPreviousData,
@@ -32,14 +37,14 @@ const App = () => {
   );
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = useCallback(() => setIsModalOpen(false), []);
 
-  const totalPages = data?.totalPages ?? 0;
+  const totalPages = notesData?.totalPages ?? 0;
 
   return (
     <div className={styles.app}>
       <header className={styles.toolbar}>
-        <SearchBox value={searchQuery} onChange={updateSearchQuery} />
+        <SearchBox initialValue={searchQuery} onChange={updateSearchQuery} />
         {totalPages > 1 && (
           <Pagination
             totalPages={totalPages}
@@ -53,8 +58,10 @@ const App = () => {
       </header>
       {isLoading && <Loader />}
       {isError && <ApiError message={error.message} />}
-      {data && data.notes.length === 0 && <EmptyState />}
-      {data && data.notes.length > 0 && <NoteList notes={data.notes} />}
+      {notesData && notesData.notes.length === 0 && <EmptyState />}
+      {notesData && notesData.notes.length > 0 && (
+        <NoteList notes={notesData.notes} />
+      )}
       {isModalOpen && (
         <Modal onClose={closeModal}>
           <NoteForm onClose={closeModal} />

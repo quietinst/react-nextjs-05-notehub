@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ErrorMessage, Field, Form, Formik, type FormikHelpers } from 'formik';
-import { useState } from 'react';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { createNote } from '../../services/noteService';
 import type { NoteFormValues } from '../../types/note';
@@ -29,8 +28,6 @@ const NoteFormSchema = Yup.object().shape({
 });
 
 const NoteForm = ({ onClose }: NoteFormProps) => {
-  const [createError, setCreateError] = useState<string | null>(null);
-
   const queryClient = useQueryClient();
   const createMutation = useMutation({
     mutationFn: createNote,
@@ -39,19 +36,10 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
     },
   });
 
-  const handleSubmit = async (
-    values: NoteFormValues,
-    actions: FormikHelpers<NoteFormValues>
-  ) => {
-    setCreateError(null);
-
-    try {
-      await createMutation.mutateAsync(values);
-      actions.resetForm();
-      onClose();
-    } catch {
-      setCreateError('Failed to create note. Please try again.');
-    }
+  const handleSubmit = (values: NoteFormValues) => {
+    createMutation.mutate(values, {
+      onSuccess: onClose,
+    });
   };
 
   return (
@@ -61,7 +49,7 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
       onSubmit={handleSubmit}
       validateOnMount
     >
-      {({ isValid, dirty, isSubmitting }) => (
+      {({ isValid, dirty }) => (
         <Form className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="title">Title</label>
@@ -71,18 +59,27 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
               name="title"
               className={styles.input}
             />
-            <ErrorMessage name="title" className={styles.error} />
+            <ErrorMessage
+              name="title"
+              component="span"
+              className={styles.error}
+            />
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="content">Content</label>
             <Field
+              as="textarea"
               id="content"
               name="content"
               rows={8}
               className={styles.textarea}
             />
-            <ErrorMessage name="content" className={styles.error} />
+            <ErrorMessage
+              name="content"
+              component="span"
+              className={styles.error}
+            />
           </div>
 
           <div className={styles.formGroup}>
@@ -94,9 +91,15 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
               <option value="Meeting">Meeting</option>
               <option value="Shopping">Shopping</option>
             </Field>
-            <ErrorMessage name="tag" className={styles.error} />
+            <ErrorMessage
+              name="tag"
+              component="span"
+              className={styles.error}
+            />
           </div>
-          {createError && <ApiError message={createError} />}
+          {createMutation.isError && (
+            <ApiError message="Failed to create note. Please try again." />
+          )}
           <div className={styles.actions}>
             <button
               type="button"
@@ -108,9 +111,9 @@ const NoteForm = ({ onClose }: NoteFormProps) => {
             <button
               type="submit"
               className={styles.submitButton}
-              disabled={!isValid || !dirty || isSubmitting}
+              disabled={!isValid || !dirty || createMutation.isPending}
             >
-              {isSubmitting ? 'Creating...' : 'Create note'}
+              {createMutation.isPending ? 'Creating...' : 'Create note'}
             </button>
           </div>
         </Form>

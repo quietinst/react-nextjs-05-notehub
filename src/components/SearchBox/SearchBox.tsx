@@ -1,15 +1,15 @@
 import styles from './SearchBox.module.css';
 
 interface SearchBoxProps {
-  value: string;
+  initialValue: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
-const SearchBox = ({ value, onChange }: SearchBoxProps) => {
+const SearchBox = ({ initialValue, onChange }: SearchBoxProps) => {
   return (
     <input
       className={styles.input}
       type="text"
-      defaultValue={value}
+      defaultValue={initialValue}
       onChange={onChange}
       placeholder="Search notes"
     />
