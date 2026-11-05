@@ -29,3 +29,15 @@
 .button:hover {
   background-color: #0b5ed7;
 }
+
+@media (max-width: 767px) {
+  .toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .button {
+    width: 100%;
+  }
+}

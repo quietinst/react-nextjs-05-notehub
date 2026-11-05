@@ -6,3 +6,9 @@
   border: 1px solid #ced4da;
   border-radius: 4px;
 }
+
+@media (max-width: 767px) {
+  .input {
+    max-width: none;
+  }
+}
