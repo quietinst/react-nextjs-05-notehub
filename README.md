@@ -1,5 +1,7 @@
 # 05 — NoteHub
 
+🔗 [Live demo](https://react-nextjs-05-notehub.vercel.app)
+
 A note-taking app: browse your notes, search them, create new ones, and delete
 the ones you no longer need. Notes are stored on a remote backend and the app
 keeps the server data in sync.
@@ -35,23 +37,29 @@ and Yup, a debounced search, and pagination.
 ```text
 src/
 ├── components/
+│   ├── ApiError/
 │   ├── App/
-│   ├── NoteList/
-│   ├── NoteForm/
+│   ├── EmptyState/
+│   ├── Loader/
 │   ├── Modal/
+│   ├── NoteForm/
+│   ├── NoteList/
 │   ├── Pagination/
 │   └── SearchBox/
 ├── services/
 │   └── noteService.ts
 ├── types/
 │   └── note.ts
+├── index.css
 └── main.tsx
 ```
 
 Each component folder contains the component (`.tsx`) and its styles
-(`.module.css`). The shared `Note` and `NoteTag` types live in
-`src/types/note.ts`. The HTTP functions (`fetchNotes`, `createNote`,
-`deleteNote`) and their response types live in `src/services/noteService.ts`.
+(`.module.css`). `Loader`, `EmptyState` and `ApiError` are small helper
+components for the loading, empty and error states. The shared `Note` and
+`NoteTag` types live in `src/types/note.ts`. The HTTP functions (`fetchNotes`,
+`createNote`, `deleteNote`) and their response types live in
+`src/services/noteService.ts`.
 
 ## Getting started
 
